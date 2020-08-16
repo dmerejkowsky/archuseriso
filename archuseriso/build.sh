@@ -248,9 +248,11 @@ make_packages_local() {
     fi
 
     if [[ ${_pkglocal[@]} ]]; then
-        mkaui -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -r 'echo "Installing user packages"' run
-        echo "      ${_pkglocal[@]##*/}"
-        pacstrap -c -G -M -U "${work_dir}/x86_64/airootfs" ${_pkglocal[@]} > /dev/null 2>&1
+        if [ -n "${verbose}" ]; then
+            mkaui -v -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(sed ':a;N;$!ba;s/\n/ /g' <<< "${_pkglocal[@]}")" upgrade
+        else
+            mkaui -w "${work_dir}/x86_64" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "$(sed ':a;N;$!ba;s/\n/ /g' <<< "${_pkglocal[@]}")" upgrade
+        fi
     fi
 
     iso_version="$(pacman --sysroot "${work_dir}/x86_64/airootfs" -Q linux | cut -d' ' -f2 | sed s'/\./_/g; s/_arch.*//; s/^/linux_/')${AUI_ISONAMEOPTION:+-$AUI_ISONAMEOPTION}${lang:+-$lang}-$(date +%m%d)"

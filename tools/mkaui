@@ -49,7 +49,11 @@ _chroot_init() {
 }
 
 _chroot_run() {
-    eval arch-chroot ${work_dir}/airootfs "${run_cmd}"
+    if [[ "${quiet}" = "y" ]]; then
+        eval arch-chroot ${work_dir}/airootfs "${run_cmd}" &> /dev/null
+    else
+        eval arch-chroot ${work_dir}/airootfs "${run_cmd}"
+    fi
 }
 
 _mount_airootfs() {
